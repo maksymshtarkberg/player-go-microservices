@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package main;
+
+option go_package = ".";
+
+
+service SongService {
+  rpc UploadSong(UploadSongRequest) returns (UploadSongResponse);
+
+  rpc GetSong(GetSongRequest) returns (GetSongResponse);
+
+  rpc StreamSongFile(StreamSongFileRequest) returns (stream StreamSongFileResponse);
+
+  rpc StreamAlbumCover(StreamAlbumCoverRequest) returns (stream StreamAlbumCoverResponse);
+}
+
+message UploadSongRequest {
+  string title = 1;
+  string artist = 2;
+  string album = 3;
+  string description = 4;
+  string uploaded_by = 5;
+  bytes song_file = 6;
+  bytes album_cover = 7;
+}
+
+message UploadSongResponse {
+  string message = 1;
+  string status = 2;
+  string song_id = 3;
+}
+
+message GetSongRequest {
+  string song_id = 1;
+}
+
+message GetSongResponse {
+  string title = 1;
+  string artist = 2;
+  string album = 3;
+  string description = 4;
+  string uploaded_by = 5;
+  string song_file_id = 6;
+  string album_cover_id = 7;
+}
+
+message StreamSongFileRequest {
+  string song_file_id = 1;
+}
+
+message StreamSongFileResponse {
+  bytes chunk = 1;
+}
+
+message StreamAlbumCoverRequest {
+  string album_cover_id = 1;
+}
+
+message StreamAlbumCoverResponse {
+  bytes chunk = 1;
+}
