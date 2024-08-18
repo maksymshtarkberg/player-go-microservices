@@ -19,10 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SongService_UploadSong_FullMethodName       = "/main.SongService/UploadSong"
-	SongService_GetSong_FullMethodName          = "/main.SongService/GetSong"
-	SongService_StreamSongFile_FullMethodName   = "/main.SongService/StreamSongFile"
-	SongService_StreamAlbumCover_FullMethodName = "/main.SongService/StreamAlbumCover"
+	SongService_UploadSong_FullMethodName         = "/main.SongService/UploadSong"
+	SongService_StreamSongFile_FullMethodName     = "/main.SongService/StreamSongFile"
+	SongService_StreamAlbumCover_FullMethodName   = "/main.SongService/StreamAlbumCover"
+	SongService_GetUserSongs_FullMethodName       = "/main.SongService/GetUserSongs"
+	SongService_GetAllSongs_FullMethodName        = "/main.SongService/GetAllSongs"
+	SongService_UpdateSongMetadata_FullMethodName = "/main.SongService/UpdateSongMetadata"
+	SongService_DeleteSong_FullMethodName         = "/main.SongService/DeleteSong"
 )
 
 // SongServiceClient is the client API for SongService service.
@@ -30,9 +33,12 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SongServiceClient interface {
 	UploadSong(ctx context.Context, in *UploadSongRequest, opts ...grpc.CallOption) (*UploadSongResponse, error)
-	GetSong(ctx context.Context, in *GetSongRequest, opts ...grpc.CallOption) (*GetSongResponse, error)
 	StreamSongFile(ctx context.Context, in *StreamSongFileRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamSongFileResponse], error)
 	StreamAlbumCover(ctx context.Context, in *StreamAlbumCoverRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamAlbumCoverResponse], error)
+	GetUserSongs(ctx context.Context, in *GetUserSongsRequest, opts ...grpc.CallOption) (*GetUserSongsResponse, error)
+	GetAllSongs(ctx context.Context, in *GetAllSongsRequest, opts ...grpc.CallOption) (*GetAllSongsResponse, error)
+	UpdateSongMetadata(ctx context.Context, in *UpdateSongMetadataRequest, opts ...grpc.CallOption) (*UpdateSongMetadataResponse, error)
+	DeleteSong(ctx context.Context, in *DeleteSongRequest, opts ...grpc.CallOption) (*DeleteSongResponse, error)
 }
 
 type songServiceClient struct {
@@ -47,16 +53,6 @@ func (c *songServiceClient) UploadSong(ctx context.Context, in *UploadSongReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UploadSongResponse)
 	err := c.cc.Invoke(ctx, SongService_UploadSong_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *songServiceClient) GetSong(ctx context.Context, in *GetSongRequest, opts ...grpc.CallOption) (*GetSongResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetSongResponse)
-	err := c.cc.Invoke(ctx, SongService_GetSong_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,14 +97,57 @@ func (c *songServiceClient) StreamAlbumCover(ctx context.Context, in *StreamAlbu
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SongService_StreamAlbumCoverClient = grpc.ServerStreamingClient[StreamAlbumCoverResponse]
 
+func (c *songServiceClient) GetUserSongs(ctx context.Context, in *GetUserSongsRequest, opts ...grpc.CallOption) (*GetUserSongsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserSongsResponse)
+	err := c.cc.Invoke(ctx, SongService_GetUserSongs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *songServiceClient) GetAllSongs(ctx context.Context, in *GetAllSongsRequest, opts ...grpc.CallOption) (*GetAllSongsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllSongsResponse)
+	err := c.cc.Invoke(ctx, SongService_GetAllSongs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *songServiceClient) UpdateSongMetadata(ctx context.Context, in *UpdateSongMetadataRequest, opts ...grpc.CallOption) (*UpdateSongMetadataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSongMetadataResponse)
+	err := c.cc.Invoke(ctx, SongService_UpdateSongMetadata_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *songServiceClient) DeleteSong(ctx context.Context, in *DeleteSongRequest, opts ...grpc.CallOption) (*DeleteSongResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteSongResponse)
+	err := c.cc.Invoke(ctx, SongService_DeleteSong_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SongServiceServer is the server API for SongService service.
 // All implementations must embed UnimplementedSongServiceServer
 // for forward compatibility.
 type SongServiceServer interface {
 	UploadSong(context.Context, *UploadSongRequest) (*UploadSongResponse, error)
-	GetSong(context.Context, *GetSongRequest) (*GetSongResponse, error)
 	StreamSongFile(*StreamSongFileRequest, grpc.ServerStreamingServer[StreamSongFileResponse]) error
 	StreamAlbumCover(*StreamAlbumCoverRequest, grpc.ServerStreamingServer[StreamAlbumCoverResponse]) error
+	GetUserSongs(context.Context, *GetUserSongsRequest) (*GetUserSongsResponse, error)
+	GetAllSongs(context.Context, *GetAllSongsRequest) (*GetAllSongsResponse, error)
+	UpdateSongMetadata(context.Context, *UpdateSongMetadataRequest) (*UpdateSongMetadataResponse, error)
+	DeleteSong(context.Context, *DeleteSongRequest) (*DeleteSongResponse, error)
 	mustEmbedUnimplementedSongServiceServer()
 }
 
@@ -122,14 +161,23 @@ type UnimplementedSongServiceServer struct{}
 func (UnimplementedSongServiceServer) UploadSong(context.Context, *UploadSongRequest) (*UploadSongResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadSong not implemented")
 }
-func (UnimplementedSongServiceServer) GetSong(context.Context, *GetSongRequest) (*GetSongResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSong not implemented")
-}
 func (UnimplementedSongServiceServer) StreamSongFile(*StreamSongFileRequest, grpc.ServerStreamingServer[StreamSongFileResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamSongFile not implemented")
 }
 func (UnimplementedSongServiceServer) StreamAlbumCover(*StreamAlbumCoverRequest, grpc.ServerStreamingServer[StreamAlbumCoverResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamAlbumCover not implemented")
+}
+func (UnimplementedSongServiceServer) GetUserSongs(context.Context, *GetUserSongsRequest) (*GetUserSongsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSongs not implemented")
+}
+func (UnimplementedSongServiceServer) GetAllSongs(context.Context, *GetAllSongsRequest) (*GetAllSongsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllSongs not implemented")
+}
+func (UnimplementedSongServiceServer) UpdateSongMetadata(context.Context, *UpdateSongMetadataRequest) (*UpdateSongMetadataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSongMetadata not implemented")
+}
+func (UnimplementedSongServiceServer) DeleteSong(context.Context, *DeleteSongRequest) (*DeleteSongResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSong not implemented")
 }
 func (UnimplementedSongServiceServer) mustEmbedUnimplementedSongServiceServer() {}
 func (UnimplementedSongServiceServer) testEmbeddedByValue()                     {}
@@ -170,24 +218,6 @@ func _SongService_UploadSong_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SongService_GetSong_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSongRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SongServiceServer).GetSong(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SongService_GetSong_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SongServiceServer).GetSong(ctx, req.(*GetSongRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SongService_StreamSongFile_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StreamSongFileRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -210,6 +240,78 @@ func _SongService_StreamAlbumCover_Handler(srv interface{}, stream grpc.ServerSt
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SongService_StreamAlbumCoverServer = grpc.ServerStreamingServer[StreamAlbumCoverResponse]
 
+func _SongService_GetUserSongs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSongsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SongServiceServer).GetUserSongs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SongService_GetUserSongs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SongServiceServer).GetUserSongs(ctx, req.(*GetUserSongsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SongService_GetAllSongs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllSongsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SongServiceServer).GetAllSongs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SongService_GetAllSongs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SongServiceServer).GetAllSongs(ctx, req.(*GetAllSongsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SongService_UpdateSongMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSongMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SongServiceServer).UpdateSongMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SongService_UpdateSongMetadata_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SongServiceServer).UpdateSongMetadata(ctx, req.(*UpdateSongMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SongService_DeleteSong_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSongRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SongServiceServer).DeleteSong(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SongService_DeleteSong_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SongServiceServer).DeleteSong(ctx, req.(*DeleteSongRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SongService_ServiceDesc is the grpc.ServiceDesc for SongService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -222,8 +324,20 @@ var SongService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SongService_UploadSong_Handler,
 		},
 		{
-			MethodName: "GetSong",
-			Handler:    _SongService_GetSong_Handler,
+			MethodName: "GetUserSongs",
+			Handler:    _SongService_GetUserSongs_Handler,
+		},
+		{
+			MethodName: "GetAllSongs",
+			Handler:    _SongService_GetAllSongs_Handler,
+		},
+		{
+			MethodName: "UpdateSongMetadata",
+			Handler:    _SongService_UpdateSongMetadata_Handler,
+		},
+		{
+			MethodName: "DeleteSong",
+			Handler:    _SongService_DeleteSong_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

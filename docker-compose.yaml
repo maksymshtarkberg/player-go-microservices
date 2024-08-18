@@ -12,16 +12,9 @@ services:
     networks:
       - cache_network
 
-  redis:
-    image: redis:latest
-    container_name: redis_cache
-    ports:
-      - "6379:6379"
-    networks:
-      - cache_network
-
   nats:
     image: nats
+    container_name: nats_msg
     ports:
       - "4222:4222"
       - "8222:8222"
@@ -31,7 +24,7 @@ services:
   grpc-server:
     build:
       context: .
-      dockerfile: ./internal/songs/Dockerfile
+      dockerfile: ./internal/grpc-server/Dockerfile
     ports:
       - "8080:8080"
     networks:

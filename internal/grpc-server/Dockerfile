@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main ./internal/songs
+RUN go build -o main ./internal/grpc-server
 
 EXPOSE 8080
 
