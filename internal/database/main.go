@@ -17,11 +17,18 @@ func InitMongo(uri, dbName string) {
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+		return
+	}
+
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatalf("Failed to ping MongoDB: %v", err)
+		return
 	}
 
 	DB = client.Database(dbName)
-	log.Print("DB conected")
+	log.Print("DB connected")
 }
 
 func GetCollection(name string) *mongo.Collection {

@@ -24,7 +24,7 @@ func main() {
 
 	database.InitMongo("mongodb://root:example@localhost:27017", "musicDB")
 
-	nc, err = nats.Connect(nats.DefaultURL)
+	nc, err = nats.Connect("nats://localhost:4222")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func HashPassword(password string) string {
 }
 
 func handleRegister(m *nats.Msg) {
-	log.Print("subscribe succsessfull")
+
 	var user models.User
 	err := json.Unmarshal(m.Data, &user)
 	if err != nil {
@@ -70,10 +70,15 @@ func handleRegister(m *nats.Msg) {
 		return
 	}
 
-	responseData, _ := json.Marshal(map[string]string{
-		"status": "User registered successfully",
-		"userID": user.ID,
+	responseData, err := json.Marshal(map[string]string{
+		"status":   "User registered successfully",
+		"userID":   user.ID.Hex(),
+		"userName": user.Username,
 	})
+	if err != nil {
+		nc.Publish(m.Reply, []byte(fmt.Sprintf(`{"error": "Failed to serialize response: %v"}`, err)))
+		return
+	}
 
 	nc.Publish(m.Reply, responseData)
 }

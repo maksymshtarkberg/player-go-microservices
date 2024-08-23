@@ -14,7 +14,7 @@ var nc *nats.Conn
 
 func main() {
 	var err error
-	nc, err = nats.Connect(nats.DefaultURL)
+	nc, err = nats.Connect("nats://localhost:4222")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,9 +24,8 @@ func main() {
 
 	router.POST("/api/v1/user/reg", RegisterUserNats)
 	router.POST("/api/v1/user/auth", AuthUserNats)
-	router.GET("/api/v1/song/upload", UploadSongNats)
 
-	router.Run(":8080")
+	router.Run(":3000")
 }
 
 func RegisterUserNats(c *gin.Context) {
@@ -53,22 +52,6 @@ func AuthUserNats(c *gin.Context) {
 	}
 
 	response, err := nc.Request("auth.authenticate", encode(user), nats.DefaultTimeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, decode(response.Data))
-}
-
-func UploadSongNats(c *gin.Context) {
-	var songReq models.Song
-	if err := c.ShouldBindJSON(&songReq); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
-	}
-
-	response, err := nc.Request("songs.upload", encode(songReq), nats.DefaultTimeout)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

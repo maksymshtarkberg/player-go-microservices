@@ -27,7 +27,7 @@ func main() {
 		Addr: "localhost:6379",
 	})
 
-	nc, err = nats.Connect(nats.DefaultURL)
+	nc, err = nats.Connect("nats://localhost:4222")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,9 +62,13 @@ func handleRegister(m *nats.Msg) {
 
 	userExist, err := nc.Request("users.get", []byte(user.Username), 5*nats.DefaultTimeout)
 	if err != nil {
-		nc.Publish(m.Reply, []byte(fmt.Sprintf(`{"error": "Users service error: %v"}`, err)))
+		nc.Publish(m.Reply, []byte(fmt.Sprintf(`{"error": "Users get service error: %v"}`, err)))
 		return
 	}
+
+	userData := json.RawMessage(userExist.Data)
+	log.Printf(string(userData))
+
 	if string(userExist.Data) != "false" {
 		nc.Publish(m.Reply, []byte(`{"error": "User already registered"}`))
 		return
@@ -77,14 +81,25 @@ func handleRegister(m *nats.Msg) {
 		return
 	}
 
-	response, err := nc.Request("users.register", m.Data, 5*nats.DefaultTimeout)
+	response, err := nc.Request("users.register", m.Data, nats.DefaultTimeout)
 	if err != nil {
-		nc.Publish(m.Reply, []byte(fmt.Sprintf(`{"error": "Users service error: %v"}`, err)))
-
+		nc.Publish(m.Reply, []byte(fmt.Sprintf(`{"error": "Users reg service error: %v"}`, err)))
 		return
 	}
 
-	nc.Publish(m.Reply, response.Data)
+	finalResponse := map[string]interface{}{
+		"message": "User registered successfully",
+		"token":   token,
+		"data":    json.RawMessage(response.Data),
+	}
+
+	responseData, err := json.Marshal(finalResponse)
+	if err != nil {
+		nc.Publish(m.Reply, []byte(fmt.Sprintf(`{"error": "Internal server error: %v"}`, err)))
+		return
+	}
+
+	nc.Publish(m.Reply, responseData)
 }
 
 func handleAuthenticate(m *nats.Msg) {
@@ -144,9 +159,16 @@ func handleAuthenticate(m *nats.Msg) {
 	}
 
 	responseData, _ := json.Marshal(map[string]string{
-		"status": "Authenticated",
-		"token":  token,
+		"status":   "Authenticated",
+		"token":    token,
+		"userId":   user.ID.Hex(),
+		"userName": user.Username,
 	})
+	if err != nil {
+		nc.Publish(m.Reply, []byte(fmt.Sprintf(`{"error": "Failed to serialize response: %v"}`, err)))
+		return
+	}
+
 	nc.Publish(m.Reply, responseData)
 }
 

@@ -8,8 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main ./cmd
+RUN go build -o main ./internal/auth
 
-EXPOSE 3000
 
 CMD ["./main"]
